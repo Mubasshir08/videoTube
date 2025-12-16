@@ -1,3 +1,5 @@
 import "dotenv/config";
+import mongoDB from "./db/db.js";
 
-console.log(process.env.PORT)
+// db code initialize
+mongoDB();
