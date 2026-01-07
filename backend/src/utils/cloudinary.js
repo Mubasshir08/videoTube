@@ -20,4 +20,4 @@ const uploadOnClodinary = async (localFilePath) => {
       throw error;
    }
 }
- export default cloudinary;
+ export {uploadOnClodinary};
