@@ -72,6 +72,41 @@ const registerUser = asyncHandler(async (req, res) => {
    res.status(201).json(new ApiResponse(200, createdUser, "User created successfully"));
 });
 
+// login user
+const loginUser = asyncHandler(async (req, res) => {
+   const {userName,email, password} = req.body;
+   if(
+      [userName, email, password].some((field) => field?.trim() === "")
+   ){
+      throw new ApiError(400, "All fields are required");
+   }
+
+   const user = User.findOne({
+      $or : [
+         {userName},
+         {email}
+      ]
+   });
+
+   if(!user) throw new ApiError(404, "User not found");
+
+   const isPasswordCorrect = await user.isPasswordCorrect(password);
+   if(!isPasswordCorrect) throw new ApiError(401, "Invalid user credentials");
+
+   const {accessToken, refreshToken} = await generateAccessTokenAndRefreshToken(user._id);
+
+   const option = {
+      httpOnly : true,
+      secure : true
+   };
+
+   res
+   .status(200)
+   .cookie("accessToken", accessToken, option)
+   .cookie("refreshToken", refreshToken, option)
+   .json(new ApiResponse(200, user, "User logged in successfully"));
+})
+
 // logout user
 const logoutUser = asyncHandler(async (req, res) => {
    await User.findByIdAndUpdate(
