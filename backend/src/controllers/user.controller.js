@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { uploadOnClodinary } from "../utils/cloudinary.js";
 
+// register user
 const registerUser = asyncHandler(async (req, res) => {
    const {fullName, userName, email, password} = req.body;
    // console.log(fullName); // check if data is coming or not
@@ -55,4 +56,9 @@ const registerUser = asyncHandler(async (req, res) => {
    res.status(201).json(new ApiResponse(200, createdUser, "User created successfully"));
 });
 
-export {registerUser};
+// logout user
+const logoutUser = asyncHandler(async (req, res) => {
+   
+})
+
+export {registerUser, logoutUser};
