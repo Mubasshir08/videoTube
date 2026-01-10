@@ -6,7 +6,7 @@ import { uploadOnClodinary } from "../utils/cloudinary.js";
 
 const generateAccessTokenAndRefreshToken = async (userId) => {
    try {
-      const user = User.findById(userId);
+      const user = await User.findById(userId);
 
       const accessToken = user.generateAccessToken();
       const refreshToken = user.generateRefreshToken();
@@ -75,13 +75,11 @@ const registerUser = asyncHandler(async (req, res) => {
 // login user
 const loginUser = asyncHandler(async (req, res) => {
    const {userName,email, password} = req.body;
-   if(
-      [userName, email, password].some((field) => field?.trim() === "")
-   ){
-      throw new ApiError(400, "All fields are required");
-   }
+  if(!(userName || email) || !password) throw new ApiError(400, "All fields are required");
 
-   const user = User.findOne({
+   // console.log(userName,email);
+
+   const user = await User.findOne({
       $or : [
          {userName},
          {email}
@@ -134,4 +132,4 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 })
 
-export {registerUser, logoutUser};
+export {registerUser,loginUser,logoutUser};
