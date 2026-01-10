@@ -1,5 +1,5 @@
 import {Router} from "express";
-import { logoutUser, registerUser } from "../controllers/user.controller.js";
+import { loginUser, logoutUser, registerUser } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middlerware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
@@ -19,6 +19,9 @@ router.route("/register").post(
     ]),
     registerUser
 );
+
+// login user route
+router.route("/login").post(loginUser);
 
 // logout user route
 router.route("/logout").post(
