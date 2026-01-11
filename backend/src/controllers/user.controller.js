@@ -3,6 +3,7 @@ import {ApiError} from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { uploadOnClodinary } from "../utils/cloudinary.js";
+import { cookieOption } from "../constants.js";
 
 const generateAccessTokenAndRefreshToken = async (userId) => {
    try {
@@ -93,15 +94,10 @@ const loginUser = asyncHandler(async (req, res) => {
 
    const {accessToken, refreshToken} = await generateAccessTokenAndRefreshToken(user._id);
 
-   const option = {
-      httpOnly : true,
-      secure : true
-   };
-
    res
    .status(200)
-   .cookie("accessToken", accessToken, option)
-   .cookie("refreshToken", refreshToken, option)
+   .cookie("accessToken", accessToken, cookieOption)
+   .cookie("refreshToken", refreshToken, cookieOption)
    .json(new ApiResponse(200, user, "User logged in successfully"));
 })
 
@@ -119,17 +115,28 @@ const logoutUser = asyncHandler(async (req, res) => {
       }
    )
 
-   const option = {
-      httpOnly : true,
-      secure : true
-   }
-
    res
    .status(200)
-   .clearCookie("accessToken", option)
-   .clearCookie("refreshToken", option)
+   .clearCookie("accessToken", cookieOption)
+   .clearCookie("refreshToken", cookieOption)
    .json(new ApiResponse(200, {}, "User logged out successfully"));  
 
 })
 
-export {registerUser,loginUser,logoutUser};
+// create new accessToken, refreshToken
+const refreshAccessToken = asyncHandler(async (req, res) => {
+   const refreshToken = req.cookies.refreshToken || req.header("Authorization")?.replace("Bearer ", "") || req.body.refreshToken;
+   if(!refreshToken) throw new ApiError(401, "Unauthorized request");
+   const decodedToken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+   const user = await User.findById(decodedToken._id).select("-password -refreshToken");
+   if(!user) throw new ApiError(401, "Invalid Refresh Token");
+   const {accessToken, refreshToken : newRefreshToken} = await generateAccessTokenAndRefreshToken(user._id);
+
+   res
+   .status(200)
+   .cookie("accessToken", accessToken, cookieOption)
+   .cookie("refreshToken", newRefreshToken, cookieOption)
+   .json(new ApiResponse(200, user, "New Access Token Generated Successfully"));
+})
+
+export {registerUser,loginUser,logoutUser, refreshAccessToken};
