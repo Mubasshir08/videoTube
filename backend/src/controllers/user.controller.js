@@ -157,6 +157,22 @@ const updatePassword = asyncHandler(async (req, res) => {
   .json(new ApiResponse(200, {}, "Password updated successfully")); 
 });
 
+// update account details - userName, email
+const updateAccountDetails = asyncHandler(async (req, res) => {
+   const {userName, email} = req.body;
+   const user = await User.findByIdAndUpdate(
+      req.user?._id,
+      {
+         $set : {
+            userName,
+            email
+         }
+      },
+      {new : true}
+   ).select("-password");
+   res
+   .status(200)
+   .json(new ApiResponse(200, user, "Account details updated successfully")); 
+});
 
-
-export {registerUser,loginUser,logoutUser, refreshAccessToken, updatePassword};
+export {registerUser,loginUser,logoutUser, refreshAccessToken, updatePassword, updateAccountDetails};
