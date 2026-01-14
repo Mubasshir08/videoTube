@@ -99,7 +99,7 @@ const loginUser = asyncHandler(async (req, res) => {
    .cookie("accessToken", accessToken, cookieOption)
    .cookie("refreshToken", refreshToken, cookieOption)
    .json(new ApiResponse(200, user, "User logged in successfully"));
-})
+});
 
 // logout user
 const logoutUser = asyncHandler(async (req, res) => {
@@ -121,7 +121,7 @@ const logoutUser = asyncHandler(async (req, res) => {
    .clearCookie("refreshToken", cookieOption)
    .json(new ApiResponse(200, {}, "User logged out successfully"));  
 
-})
+});
 
 // create new accessToken, refreshToken
 const refreshAccessToken = asyncHandler(async (req, res) => {
@@ -137,14 +137,14 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
    .cookie("accessToken", accessToken, cookieOption)
    .cookie("refreshToken", newRefreshToken, cookieOption)
    .json(new ApiResponse(200, user, "New Access Token Generated Successfully"));
-})
+});
 
 // update password
 const updatePassword = asyncHandler(async (req, res) => {
   const {oldPassword, newPassword} = req.body;
 
   if(!oldPassword || !newPassword) throw new ApiError(400, "All fields are required");
-  const user = await User.findById(req.user._id);
+  const user = await User.findById(req.user?._id);
 
   const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
   if(!isPasswordCorrect) throw new ApiError(401, "Invalid user credentials");
@@ -152,7 +152,11 @@ const updatePassword = asyncHandler(async (req, res) => {
   user.password = newPassword;
   user.save({validateBeforeSave : false});
 
-  res.status(200).json(new ApiResponse(200, {}, "Password updated successfully")); 
-})
+  res
+  .status(200)
+  .json(new ApiResponse(200, {}, "Password updated successfully")); 
+});
+
+
 
 export {registerUser,loginUser,logoutUser, refreshAccessToken, updatePassword};
