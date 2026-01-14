@@ -175,4 +175,32 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
    .json(new ApiResponse(200, user, "Account details updated successfully")); 
 });
 
-export {registerUser,loginUser,logoutUser, refreshAccessToken, updatePassword, updateAccountDetails};
+// update avatar
+const updateAvatar = asyncHandler(async (req, res) => {
+   const avatarLocalPath = req.file?.path;
+   const user = await User.findById(req.user._id).select("-password");
+   if(!user) throw new ApiError(404, "User not found");
+   const avatar = await uploadOnClodinary(avatarLocalPath);
+   if(!avatar) throw new ApiError(400, "Avatar is required");
+   user.avatar = avatar.url;
+   await user.save({validateBeforeSave : false});
+   res
+   .status(200)
+   .json(new ApiResponse(200, user, "Avatar updated successfully"));
+});
+
+// update coverImage
+const updateCoverImage = asyncHandler(async (req, res) => {
+   const coverImageLocalPath = req.file?.path;
+   const user = await User.findById(req.user._id).select("-password");
+   if(!user) throw new ApiError(404, "User not found");
+   const coverImage = await uploadOnClodinary(coverImageLocalPath);
+   if(!coverImage) throw new ApiError(400, "Cover Image is required");
+   user.coverImage = coverImage.url;
+   await user.save({validateBeforeSave : false});
+   res
+   .status(200)
+   .json(new ApiResponse(200, user, "Cover Image updated successfully"));
+})
+
+export {registerUser, loginUser, logoutUser, refreshAccessToken, updatePassword, updateAccountDetails, updateAvatar, updateCoverImage};
