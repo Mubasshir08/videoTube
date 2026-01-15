@@ -21,5 +21,17 @@ const uploadOnClodinary = async (localFilePath) => {
       fs.unlinkSync(localFilePath); // remove the file saved on the server if upload is failed
       throw error;
    }
-}
- export {uploadOnClodinary};
+};
+
+const deleteOnClodinary = async (clodinaryUrl) => {
+   try {
+      if(!clodinaryUrl) return null;
+      const response = await cloudinary.uploader.destroy(clodinaryUrl);
+      console.log("file deleted on clodinary successfully !\n", response);
+      return response;
+   } catch (error) {
+      throw error;
+   }
+};
+
+ export {uploadOnClodinary, deleteOnClodinary};
