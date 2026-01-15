@@ -9,7 +9,7 @@
     secure : true
  });
 
-const uploadOnClodinary = async (localFilePath) => {
+const uploadOnCloudinary = async (localFilePath) => {
    try {
       if(!localFilePath) return null;
       const response = await cloudinary.uploader.upload(localFilePath, {resource_type: "auto"});
@@ -23,7 +23,7 @@ const uploadOnClodinary = async (localFilePath) => {
    }
 };
 
-const deleteOnClodinary = async (clodinaryUrl) => {
+const deleteOnCloudinary = async (clodinaryUrl) => {
    try {
       if(!clodinaryUrl) return null;
       const response = await cloudinary.uploader.destroy(clodinaryUrl);
@@ -34,4 +34,4 @@ const deleteOnClodinary = async (clodinaryUrl) => {
    }
 };
 
- export {uploadOnClodinary, deleteOnClodinary};
+ export {uploadOnCloudinary, deleteOnCloudinary};

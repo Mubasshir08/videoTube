@@ -2,7 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
-import { uploadOnClodinary } from "../utils/cloudinary.js";
+import { deleteOnCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import { cookieOption } from "../constants.js";
 
 const generateAccessTokenAndRefreshToken = async (userId) => {
@@ -50,8 +50,8 @@ const registerUser = asyncHandler(async (req, res) => {
    // console.log(avatarLocalPath, coverImageLocalPath);
    if(!avatarLocalPath) throw new ApiError(400, "Avatar is required");
    
-   const avatar = await uploadOnClodinary(avatarLocalPath);
-   const coverImage = await uploadOnClodinary(coverImageLocalPath);
+   const avatar = await uploadOnCloudinary(avatarLocalPath);
+   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
    // console.log("avatar : ", avatar, "\n", "coverImage : ", coverImage);
 
    if(!avatar) throw new ApiError(400, "Avatar is required");
@@ -180,8 +180,10 @@ const updateAvatar = asyncHandler(async (req, res) => {
    const avatarLocalPath = req.file?.path;
    const user = await User.findById(req.user._id).select("-password");
    if(!user) throw new ApiError(404, "User not found");
-   const avatar = await uploadOnClodinary(avatarLocalPath);
+   const avatar = await uploadOnCloudinary(avatarLocalPath);
    if(!avatar) throw new ApiError(400, "Avatar is required");
+   // delete previous avatar
+   await deleteOnCloudinary(user.avatar);
    user.avatar = avatar.url;
    await user.save({validateBeforeSave : false});
    res
@@ -196,6 +198,8 @@ const updateCoverImage = asyncHandler(async (req, res) => {
    if(!user) throw new ApiError(404, "User not found");
    const coverImage = await uploadOnClodinary(coverImageLocalPath);
    if(!coverImage) throw new ApiError(400, "Cover Image is required");
+   // delete previous coverImage
+   await deleteOnClodinary(user.coverImage);
    user.coverImage = coverImage.url;
    await user.save({validateBeforeSave : false});
    res
@@ -203,4 +207,13 @@ const updateCoverImage = asyncHandler(async (req, res) => {
    .json(new ApiResponse(200, user, "Cover Image updated successfully"));
 })
 
-export {registerUser, loginUser, logoutUser, refreshAccessToken, updatePassword, updateAccountDetails, updateAvatar, updateCoverImage};
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  updatePassword,
+  updateAccountDetails,
+  updateAvatar,
+  updateCoverImage,
+};
