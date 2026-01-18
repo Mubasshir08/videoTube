@@ -73,7 +73,7 @@ router.route("/getUserDetails").get(
 );
 
 // get user channel profile
-router.route("/getUserChannelProfile").get(
+router.route("/channel/:username").get(
     verifyJWT,
     getUserChannelProfile
 );
