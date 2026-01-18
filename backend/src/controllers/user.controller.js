@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { deleteOnCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import { cookieOption } from "../constants.js";
+import jwt from "jsonwebtoken";
 
 const generateAccessTokenAndRefreshToken = async (userId) => {
    try {
@@ -125,7 +126,7 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 // create new accessToken, refreshToken
 const refreshAccessToken = asyncHandler(async (req, res) => {
-   const refreshToken = req.cookies.refreshToken || req.header("Authorization")?.replace("Bearer ", "") || req.body.refreshToken;
+   const refreshToken = req.cookies.refreshToken || req.header("Authorization")?.replace("Bearer ", "") || req.body?.refreshToken;
    if(!refreshToken) throw new ApiError(401, "Unauthorized request");
    const decodedToken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
    const user = await User.findById(decodedToken._id).select("-password -refreshToken");
@@ -272,6 +273,9 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
          }
       }
    ])
+   res
+   .status(200)
+   .json(new ApiResponse(200, channel[0] , "Channel details fetched successfully"));
 });
 
 // get watch history
