@@ -207,6 +207,13 @@ const updateCoverImage = asyncHandler(async (req, res) => {
    .json(new ApiResponse(200, user, "Cover Image updated successfully"));
 });
 
+// get user
+const getUserDetails = asyncHandler(async (req, res) => {
+   res
+   .status(200)
+   .json(new ApiResponse(200, req.user, "User details fetched successfully"));
+})
+
 // get channel details 
 const getUserChannelProfile = asyncHandler(async (req, res) => {
    const {username} = req.params;
@@ -276,5 +283,6 @@ export {
   updateAccountDetails,
   updateAvatar,
   updateCoverImage,
+  getUserDetails,
   getUserChannelProfile
 };
