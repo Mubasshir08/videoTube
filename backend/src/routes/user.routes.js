@@ -1,5 +1,5 @@
 import {Router} from "express";
-import { getUserChannelProfile, getUserDetails, getWatchHistory, loginUser, logoutUser, registerUser, updateAccountDetails, updateAvatar, updateCoverImage, updatePassword } from "../controllers/user.controller.js";
+import { getUserChannelProfile, getUserDetails, getWatchHistory, loginUser, logoutUser, refreshAccessToken, registerUser, updateAccountDetails, updateAvatar, updateCoverImage, updatePassword } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middlerware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
@@ -47,6 +47,8 @@ router.route("/updateAccountDetails").post(
     verifyJWT,
     updateAccountDetails
 );
+
+// all patch requests
 
 // update avatar
 router.route("/updateAvatar").patch(
