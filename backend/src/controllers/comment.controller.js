@@ -3,13 +3,14 @@ import { Comment } from "../models/comment.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { isValidId } from "../utils/ObjectId_Validator.js";
 
 const getVideoComments = asyncHandler(async (req, res) => {
   //TODO: get all comments for a video
 
   const { videoId } = req.params;
   if(!videoId) throw new ApiError(400, "Video Id is required");
-  if(!mongoose.Types.ObjectId.isValid(videoId)) throw new ApiError(400, "Invalid Video Id");
+  if(!isValidId(videoId)) throw new ApiError(400, "Invalid Video Id");
 
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
@@ -33,7 +34,7 @@ const addComment = asyncHandler(async (req, res) => {
   // TODO: add a comment to a video
   const { videoId } = req.params;
   if(!videoId) throw new ApiError(400, "Video Id is required");
-  if(!mongoose.Types.ObjectId.isValid(videoId)) throw new ApiError(400, "Invalid Video Id");
+  if(!isValidId(videoId)) throw new ApiError(400, "Invalid Video Id");
 
   const { content } = req.body;
   if(!content) throw new ApiError(400, "Content is required");
@@ -53,7 +54,7 @@ const updateComment = asyncHandler(async (req, res) => {
   // TODO: update a comment
   const { commentId } = req.params;
   if(!commentId) throw new ApiError(400, "Comment Id is required");
-  if(!mongoose.Types.ObjectId.isValid(commentId)) throw new ApiError(400, "Invalid Comment Id");
+  if(!isValidId(commentId)) throw new ApiError(400, "Invalid Comment Id");
 
   const { content } = req.body;
   if(!content) throw new ApiError(400, "Content is required");
@@ -73,7 +74,7 @@ const deleteComment = asyncHandler(async (req, res) => {
   // TODO: delete a comment
   const { commentId } = req.params;
   if(!commentId) throw new ApiError(400, "Comment Id is required");
-  if(!mongoose.Types.ObjectId.isValid(commentId)) throw new ApiError(400, "Invalid Comment Id");
+  if(!isValidId(commentId)) throw new ApiError(400, "Invalid Comment Id");
 
   const comment = await Comment.findByIdAndDelete(commentId);
 
