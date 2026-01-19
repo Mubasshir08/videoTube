@@ -6,6 +6,7 @@ import { deleteOnCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import { cookieOption } from "../constants.js";
 import jwt from "jsonwebtoken";
 
+// generate access token and refresh token
 const generateAccessTokenAndRefreshToken = async (userId) => {
    try {
       const user = await User.findById(userId);
