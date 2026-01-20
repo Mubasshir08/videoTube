@@ -50,7 +50,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     if(!title || !description) throw new ApiError(400, "Title and Description are required");
     
     // upload video to cloudinary
-    const videoLocalPath = req.files?.video[0]?.path;
+    const videoLocalPath = req.files?.videoFile[0]?.path;
     if (!videoLocalPath) throw new ApiError(400, "Video is required");
     const {secure_url, duration} = await uploadOnCloudinary(videoLocalPath);
     if (!secure_url) throw new ApiError(400, "Video is required");
@@ -81,22 +81,72 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
 const getVideoById = asyncHandler(async (req, res) => {
     //TODO: get video by id
-    const { videoId } = req.params
+    const { videoId } = req.params;
+    if(!videoId) throw new ApiError(400, "Video Id is required");
+    if(!isValidId(videoId)) throw new ApiError(400, "Invalid Video Id");
+
+    const video = await Video.findById(videoId).populate("owner", "userName avatar");
+    if(!video) throw new ApiError(404, "Video not found");
+    return res
+    .status(200)
+    .json(new ApiResponse(200, video, "Video fetched successfully"));
 })
 
 const updateVideo = asyncHandler(async (req, res) => {
-    const { videoId } = req.params
     //TODO: update video details like title, description, thumbnail
+    const { videoId } = req.params;
+    if(!videoId) throw new ApiError(400, "Video Id is required");
+    if(!isValidId(videoId)) throw new ApiError(400, "Invalid Video Id");
+
+    const video = await Video.findById(videoId);
+    if(!video) throw new ApiError(404, "Video not found");
+
+    const {title, description} = req.body;
+    const thumbnailLocalPath = req.file?.path;
+
+    if (title) video.title = title;
+    if (description) video.description = description;
+    if (thumbnailLocalPath) {
+        const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+        if (!thumbnail) throw new ApiError(400, "Thumbnail is required");
+        video.thumbnail = thumbnail.secure_url;
+    }
+
+    if(!title && !description && !thumbnailLocalPath) throw new ApiError(400, "At least one field is required");
+
+    await video.save({validateBeforeSave : false});
+    return res
+    .status(200)
+    .json(new ApiResponse(200, video, "Video updated successfully"));
 
 })
 
 const deleteVideo = asyncHandler(async (req, res) => {
-    const { videoId } = req.params
     //TODO: delete video
+    const { videoId } = req.params;
+    if(!videoId) throw new ApiError(400, "Video Id is required");
+    if(!isValidId(videoId)) throw new ApiError(400, "Invalid Video Id");
+
+    const video = await Video.find(videoId, {owner : req.user._id});
+    if(!video) throw new ApiError(404, "Video not found");
+    await video.remove();
+    return res
+    .status(200)
+    .json(new ApiResponse(200, video, "Video deleted successfully"));
 })
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
-    const { videoId } = req.params
+    const { videoId } = req.params;
+    if(!videoId) throw new ApiError(400, "Video Id is required");
+    if(!isValidId(videoId)) throw new ApiError(400, "Invalid Video Id");
+
+    const video = await Video.find(videoId, {owner : req.user._id});
+    if(!video) throw new ApiError(404, "Video not found");
+    video.isPublished = !video.isPublished;
+    await video.save({validateBeforeSave : false});
+    return res
+    .status(200)
+    .json(new ApiResponse(200, video, "Video status updated successfully"));
 })
 
 export {
